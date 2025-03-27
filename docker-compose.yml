@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel_app
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+      - minio
+    volumes:
+      - ./:/var/www/html
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=pgsql
+      - DB_HOST=postgres
+      - DB_PORT=5433  # Lembre-se: o container PostgreSQL estará mapeado na porta 5433
+      - DB_DATABASE=edital_db
+      - DB_USERNAME=seu_usuario
+      - DB_PASSWORD=sua_senha
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: siesmt
+    ports:
+      - "5433:5432"  # Mapeia a porta 5433 do host para a porta 5432 do container, fiz dessa forma para não dá conflito em meus projetos locais
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  minio_data:
+  pgdata:
