@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Carbon\Carbon;
 
 class User extends Authenticatable
 {
@@ -46,6 +47,24 @@ class User extends Authenticatable
         'password' => 'hashed',
         'data_nascimento'   => 'date',
     ];
+
+    /**
+     * Atributos que serão automaticamente adicionados na serialização.
+     *
+     * @var array
+     */
+    protected $appends = ['idade'];
+
+    /**
+     * Accessor para calcular a idade com base na data de nascimento.
+     */
+    public function getIdadeAttribute()
+    {
+        if ($this->data_nascimento) {
+            return Carbon::parse($this->data_nascimento)->age;
+        }
+        return null;
+    }
 
     public function fotoPessoas() {
         return $this->hasMany(FotoPessoa::class);
