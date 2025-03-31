@@ -14,7 +14,12 @@ trait ApiCrudOperations
 {
     abstract protected function getModel(): Model;
 
-    protected function getValidationRules(): array
+    protected function getValidationRulesStore(): array
+    {
+        return [];
+    }
+
+    protected function getValidationRulesUpdate(): array
     {
         return [];
     }
@@ -49,6 +54,8 @@ trait ApiCrudOperations
             $model = $this->getModel();
             $query = $model::query();
 
+            $this->loadRelacoes($query, $request, $model);
+
             $resultados = $this->aplicarFiltros($query, $request->all());
 
             if ($resultados->isEmpty()) {
@@ -67,15 +74,34 @@ trait ApiCrudOperations
     {
         $limit = isset($request['limit']) ? (int)$request['limit'] : 10;
 
-        unset($request['page'], $request['limit']);
+        unset($request['page'], $request['limit'], $request['with']);
 
         foreach ($request as $campo => $valor) {
             if ($valor !== null && $valor !== "null") {
-                $query->orWhere($campo, 'LIKE', '%' . $valor . '%');
+                $query->orWhereRaw("lower({$campo}::text) like lower(?)", ['%' . $valor . '%']);
             }
         }
 
         return $limit ? $query->paginate($limit) : $query->paginate();
+    }
+
+    protected function loadRelacoes($query, Request $request, Model $model){
+    
+        if ($request->has('with')) {
+            $relations = explode(',', $request->input('with'));
+            $validRelations = [];
+
+            // Filtra os relacionamentos informados verificando se o método existe no model
+            foreach ($relations as $relation) {
+                if (method_exists($model, $relation)) {
+                    $validRelations[] = $relation;
+                }
+            }
+
+            if (!empty($validRelations)) {
+                $query->with($validRelations);
+            }
+        }
     }
 
     // Método para listar todos os itens
@@ -84,7 +110,12 @@ trait ApiCrudOperations
         try {
             $model = $this->getModel();
             $limit = $request->input('limit', 10);
-            $items = $model::paginate($limit);
+
+            $query = $model::query();
+
+            $this->loadRelacoes($query, $request, $model);
+
+            $items = $query->paginate($limit);
             return $this->successResponse($items);
         } catch (\Exception $e) {
             Log::error('Erro interno ao listar todos os itens.', ['exception' => $e]);
@@ -92,11 +123,15 @@ trait ApiCrudOperations
         }
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         try {
             $model = $this->getModel();
-            $item = $model::find($id);
+            $query = $model::query();
+
+            $this->loadRelacoes($query, $request, $model);
+
+            $item = $query->find($id);
 
             if (!$item) {
                 return $this->errorResponse('Item não encontrado', 'NãoEncontrado', 404);
@@ -114,7 +149,7 @@ trait ApiCrudOperations
         try {
             $model = $this->getModel();
 
-            $validator = Validator::make($request->all(), $this->getValidationRules());
+            $validator = Validator::make($request->all(), $this->getValidationRulesStore());
 
             if ($validator->fails()) {
                 return $this->errorResponse('Erro de validação', $validator->errors(), 422);
@@ -134,7 +169,7 @@ trait ApiCrudOperations
         try {
             $model = $this->getModel();
 
-            $validator = Validator::make($request->all(), $this->getValidationRules());
+            $validator = Validator::make($request->all(), $this->getValidationRulesUpdate());
 
             if ($validator->fails()) {
                 return $this->errorResponse('Erro de validação', $validator->errors(), 422);

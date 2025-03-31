@@ -2,32 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Estado;
+use App\Models\Cidade;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Traits\ApiCrudOperations;
 use Illuminate\Database\QueryException;
 
-class EstadoController extends Controller
+class CidadeController extends Controller
 {
     use ApiCrudOperations;
 
-    protected function getModel(): Estado
+    protected function getModel(): Cidade
     {
-        return new Estado();
+        return new Cidade();
     }
 
     protected function getValidationRulesStore(): array
     {
         return [
-            'sigla' => 'required|string|max:2',
             'nome' => 'required|string',
+            'estado_id' => 'required',
         ];
     }
 
     protected function getValidationRulesUpdate(): array
     {
         return [
-            'sigla' => 'required|string|max:2',
             'nome' => 'required|string',
         ];
     }

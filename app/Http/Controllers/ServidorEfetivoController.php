@@ -2,33 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Estado;
+use App\Models\ServidorEfetivo;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Traits\ApiCrudOperations;
 use Illuminate\Database\QueryException;
 
-class EstadoController extends Controller
+class ServidorEfetivoController extends Controller
 {
     use ApiCrudOperations;
 
-    protected function getModel(): Estado
+    protected function getModel(): ServidorEfetivo
     {
-        return new Estado();
+        return new ServidorEfetivo();
     }
 
     protected function getValidationRulesStore(): array
     {
         return [
-            'sigla' => 'required|string|max:2',
-            'nome' => 'required|string',
+            'user_id' => 'required',
+            'matricula' => 'required',
         ];
     }
 
     protected function getValidationRulesUpdate(): array
     {
         return [
-            'sigla' => 'required|string|max:2',
-            'nome' => 'required|string',
         ];
     }
 }

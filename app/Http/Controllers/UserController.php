@@ -2,33 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Estado;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Traits\ApiCrudOperations;
 use Illuminate\Database\QueryException;
 
-class EstadoController extends Controller
+class UserController extends Controller
 {
     use ApiCrudOperations;
 
-    protected function getModel(): Estado
+    protected function getModel(): User
     {
-        return new Estado();
+        return new User();
     }
 
     protected function getValidationRulesStore(): array
     {
         return [
-            'sigla' => 'required|string|max:2',
             'nome' => 'required|string',
+            'email' => 'required|email',
+            'password' => 'required|string|min:8',
         ];
     }
 
     protected function getValidationRulesUpdate(): array
     {
         return [
-            'sigla' => 'required|string|max:2',
-            'nome' => 'required|string',
         ];
     }
 }

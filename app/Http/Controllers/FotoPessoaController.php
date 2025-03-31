@@ -2,33 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Estado;
+use App\Models\FotoPessoa;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Traits\ApiCrudOperations;
 use Illuminate\Database\QueryException;
 
-class EstadoController extends Controller
+class FotoPessoaController extends Controller
 {
     use ApiCrudOperations;
 
-    protected function getModel(): Estado
+    protected function getModel(): FotoPessoa
     {
-        return new Estado();
+        return new FotoPessoa();
     }
 
     protected function getValidationRulesStore(): array
     {
         return [
-            'sigla' => 'required|string|max:2',
-            'nome' => 'required|string',
+            'user_id' => 'required',
         ];
     }
 
     protected function getValidationRulesUpdate(): array
     {
         return [
-            'sigla' => 'required|string|max:2',
-            'nome' => 'required|string',
         ];
     }
 }

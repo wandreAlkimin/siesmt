@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('lotacoes', function (Blueprint $table) {
             $table->increments('id');
             $table->date('data_lotacao');
-            $table->date('data_remocao');
+            $table->date('data_remocao')->nullable();
             $table->string('portaria', 100);
             $table->unsignedInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');

@@ -46,4 +46,41 @@ class User extends Authenticatable
         'password' => 'hashed',
         'data_nascimento'   => 'date',
     ];
+
+    public function fotoPessoas() {
+        return $this->hasMany(FotoPessoa::class);
+    }
+
+    public function servidoresEfetivos() {
+        return $this->hasOne(ServidorEfetivo::class);
+    }
+
+    public function servidoresEfetivosCompleto() {
+        return $this->servidoresEfetivos()->with('user');
+    }
+
+    public function servidoresTemporarios() {
+        return $this->hasOne(ServidorTemporario::class);
+    }
+
+    public function servidoresTemporariosCompleto() {
+        return $this->servidoresTemporarios()->with('user');
+    }
+
+    public function lotacoes() {
+        return $this->hasMany(Lotacao::class);
+    }
+
+    public function lotacoesUnidades() {
+        return $this->lotacoes()->with('unidade');
+    }
+
+    public function enderecos() {
+        return $this->belongsToMany(Endereco::class, 'pessoa_enderecos', 'user_id', 'endereco_id')->withTimestamps();
+    }
+
+    public function enderecosCompletos()
+    {
+        return $this->enderecos()->with('cidade.estado');
+    }
 }

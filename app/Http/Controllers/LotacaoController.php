@@ -2,33 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Estado;
+use App\Models\Lotacao;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Traits\ApiCrudOperations;
 use Illuminate\Database\QueryException;
 
-class EstadoController extends Controller
+class LotacaoController extends Controller
 {
     use ApiCrudOperations;
 
-    protected function getModel(): Estado
+    protected function getModel(): Lotacao
     {
-        return new Estado();
+        return new Lotacao();
     }
 
     protected function getValidationRulesStore(): array
     {
         return [
-            'sigla' => 'required|string|max:2',
-            'nome' => 'required|string',
+            'unidade_id' => 'required',
+            'user_id' => 'required',
+            'data_lotacao' => 'required',
+            'portaria' => 'required',
         ];
     }
+
+
 
     protected function getValidationRulesUpdate(): array
     {
         return [
-            'sigla' => 'required|string|max:2',
-            'nome' => 'required|string',
         ];
     }
 }

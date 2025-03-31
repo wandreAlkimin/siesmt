@@ -5,20 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Estado extends Model
-{
+class FotoPessoa extends Model {
+
     use SoftDeletes;
 
-    protected $table = 'estados';
+    protected $table = 'foto_pessoas';
 
-    protected $fillable = [
-        'sigla',
-        'nome',
-    ];
+    protected $fillable = ['user_id', 'data', 'bucket', 'hash'];
 
     protected $dates = ['created_at', 'updated_at', 'deleted_at'];
 
-    public function cidades() {
-        return $this->hasMany(Cidade::class);
+    public function user() {
+        return $this->belongsTo(User::class);
     }
 }
