@@ -1,66 +1,94 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Projeto API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Este projeto possui uma API com diversas funcionalidades para manipulação de dados e relacionamentos. Siga as instruções abaixo para configurar, executar e testar a aplicação.
+1. Configuração dos Containers
 
-## About Laravel
+Para iniciar os containers Docker, execute os seguintes comandos:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+docker-compose build
+docker-compose up -d
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+2. Criação do Banco de Dados e Pré-registros
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Execute o comando abaixo para criar o banco de dados e inserir alguns pré-registros:
 
-## Learning Laravel
+docker-compose exec -it app php artisan migrate --seed
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Caso prefira reiniciar as migrations:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+php artisan migrate:fresh --seed
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+3. Configuração da Chave JWT
 
-## Laravel Sponsors
+Gere a chave JWT executando:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+docker-compose exec -it app php artisan jwt:secret
 
-### Premium Partners
+4. Acesso ao MinIO
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+Acesse o MinIO pelo navegador na URL: http://localhost:9001
 
-## Contributing
+    Usuário: minioadmin
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+    Senha: minioadmin
 
-## Code of Conduct
+Após o login, crie um bucket com o nome: arquivos
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+5. Testes com Postman
 
-## Security Vulnerabilities
+Para testes mais aprofundados, utilize a seguinte coleção do Postman:
+Postman Collection
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+https://www.postman.com/wandrealkimin/wandrealkimin/collection/pl8q2nb/mt
 
-## License
+6. Estrutura de Dados
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+   Foi adicionada uma tabela de estados para melhor normalização dos dados.
+
+   CRUD e PESQUISA estão disponíveis para todas as tabelas.
+
+7. Regras e Endpoints Personalizados
+   7.1 Consulta de Servidores Efetivos
+
+Crie um endpoint que permita consultar os servidores efetivos lotados em determinada unidade, parametrizando a consulta pelo atributo unid_id. O retorno deverá conter os seguintes campos:
+
+    Nome
+
+    Idade
+
+    Unidade de lotação
+
+    Fotografia
+
+Endpoint:
+
+/servidores-efetivos?with=todosDados
+
+    O parâmetro with=todosDados garante que todos os relacionamentos especificados sejam retornados.
+
+7.2 Consulta de Endereço Funcional
+
+Crie um endpoint para consultar o endereço funcional (da unidade onde o servidor é lotado) a partir de uma parte do nome do servidor efetivo.
+
+Endpoint:
+
+/servidores-efetivos-search?with=todosDados&user_nome=Mendonça
+
+    No parâmetro with, deve-se passar o nome do relacionamento. Para pesquisar dentro do relacionamento, utilize o seguinte formato:
+    relacionamento_nomecampo
+
+7.3 Relacionamentos Muitos-para-Muitos
+
+Para salvar um relacionamento do tipo muitos-para-muitos, envie o campo com o prefixo id_ seguido do nome do relacionamento no método POST/PUT.
+
+Exemplo na URL /unidades:
+
+{
+"nome": "dada",
+"sigla": "U02",
+"id_enderecos": 1
+}
+
+7.4 Dinamismo nos CRUDs
+
+Foi criada uma Trait no controller para garantir que todo o CRUD e as pesquisas sejam dinâmicos, facilitando a manutenção e expansão da API.
