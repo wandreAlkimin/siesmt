@@ -11,7 +11,7 @@ class FotoPessoa extends Model {
 
     protected $table = 'foto_pessoas';
 
-    protected $fillable = ['user_id', 'data', 'bucket', 'hash'];
+    protected $fillable = ['user_id', 'data', 'bucket', 'hash', 'url'];
 
     protected $dates = ['created_at', 'updated_at', 'deleted_at'];
 

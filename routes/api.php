@@ -36,9 +36,6 @@ Route::get('cidades-search', [CidadeController::class, 'search']);
 Route::apiResource('enderecos', EnderecoController::class);
 Route::get('enderecos-search', [EnderecoController::class, 'search']);
 
-Route::apiResource('foto-pessoas', FotoPessoaController::class);
-Route::get('foto-pessoas-search', [FotoPessoaController::class, 'search']);
-
 Route::apiResource('lotacoes', LotacaoController::class);
 Route::get('lotacoes-search', [LotacaoController::class, 'search']);
 
@@ -53,3 +50,8 @@ Route::get('unidades-search', [UnidadeController::class, 'search']);
 
 Route::apiResource('usuarios', UserController::class);
 Route::get('usuarios-search', [UserController::class, 'search']);
+
+Route::apiResource('foto-pessoas', FotoPessoaController::class);
+Route::get('foto-pessoas-search', [FotoPessoaController::class, 'search']);
+Route::post('foto-pessoas', [FotoPessoaController::class, 'upload']);
+

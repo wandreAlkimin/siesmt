@@ -18,6 +18,7 @@ return new class extends Migration
             $table->date('data')->useCurrent();
             $table->string('bucket', 50);
             $table->string('hash', 100);
+            $table->text('url')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
