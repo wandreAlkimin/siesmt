@@ -78,7 +78,17 @@ trait ApiCrudOperations
 
         foreach ($request as $campo => $valor) {
             if ($valor !== null && $valor !== "null") {
-                $query->orWhereRaw("lower({$campo}::text) like lower(?)", ['%' . $valor . '%']);
+
+                // Verifica se o campo possui relacionamento -> relacao_campo
+                if (strpos($campo, '_') !== false) {
+                    list($relacao, $campoRel) = explode('_', $campo, 2);
+                    $query->orWhereHas($relacao, function($q) use ($campoRel, $valor) {
+                        $q->whereRaw("lower({$campoRel}::text) like lower(?)", ['%' . $valor . '%']);
+                    });
+                } else {
+                    // Pesquisa diretamente na tabela corrente
+                    $query->orWhereRaw("lower({$campo}::text) like lower(?)", ['%' . $valor . '%']);
+                }
             }
         }
 
@@ -86,21 +96,10 @@ trait ApiCrudOperations
     }
 
     protected function loadRelacoes($query, Request $request, Model $model){
-    
+
         if ($request->has('with')) {
             $relations = explode(',', $request->input('with'));
-            $validRelations = [];
-
-            // Filtra os relacionamentos informados verificando se o método existe no model
-            foreach ($relations as $relation) {
-                if (method_exists($model, $relation)) {
-                    $validRelations[] = $relation;
-                }
-            }
-
-            if (!empty($validRelations)) {
-                $query->with($validRelations);
-            }
+            $query->with($relations);
         }
     }
 
@@ -157,6 +156,8 @@ trait ApiCrudOperations
 
             $item = $model::create($request->all());
 
+            $this->addRelacao($item, $request, 'store');
+
             return $this->successResponse($item, 'Item criado com sucesso', 201);
         } catch (\Exception $e) {
             Log::error('Erro interno ao criar um novo item.', ['exception' => $e]);
@@ -183,6 +184,8 @@ trait ApiCrudOperations
 
             $item->update($request->all());
 
+            $this->addRelacao($item, $request, 'update');
+
             return $this->successResponse($item, 'Item atualizado com sucesso');
         } catch (\Exception $e) {
             Log::error('Erro interno ao atualizar um item.', ['exception' => $e]);
@@ -207,6 +210,26 @@ trait ApiCrudOperations
         } catch (\Exception $e) {
             Log::error('Erro interno ao excluir um item.', ['exception' => $e]);
             return $this->errorResponse('Erro interno ao excluir um item.', $e->getMessage(), 500);
+        }
+    }
+
+   protected function addRelacao(Model $item, Request $request, $action = 'store')
+    {
+        foreach ($request->all() as $key => $value) {
+
+            if (strpos($key, 'id_') === 0 && $value) {
+
+                $relation = substr($key, 3);
+
+                if (method_exists($item, $relation)) {
+                    if ($action === 'store') {
+                        $item->$relation()->attach($value);
+                    } else if ($action === 'update') {
+                        // Atualiza sincronizando, removendo associações anteriores
+                        $item->$relation()->sync([$value]);
+                    }
+                }
+            }
         }
     }
 }

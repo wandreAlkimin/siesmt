@@ -91,7 +91,7 @@ class User extends Authenticatable
     }
 
     public function lotacoesUnidades() {
-        return $this->lotacoes()->with('unidade');
+        return $this->lotacoes()->with('unidade.enderecos');
     }
 
     public function enderecos() {
