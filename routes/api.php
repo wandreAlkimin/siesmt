@@ -11,6 +11,7 @@ use App\Http\Controllers\ServidorEfetivoController;
 use App\Http\Controllers\ServidorTemporarioController;
 use App\Http\Controllers\UnidadeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,31 +28,42 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::apiResource('estados', EstadoController::class);
-Route::get('estados-search', [EstadoController::class, 'search']);
+Route::controller(AuthController::class)->group(function () {
+    Route::post('login', 'login');
+    Route::post('registrar', 'register');
+    Route::post('logout', 'logout');
+    Route::post('refresh', 'refresh');
+    Route::get('user-validar-rash', 'validacao');
+});
 
-Route::apiResource('cidades', CidadeController::class);
-Route::get('cidades-search', [CidadeController::class, 'search']);
+Route::middleware(['jwt.validar'])->group(function () {
 
-Route::apiResource('enderecos', EnderecoController::class);
-Route::get('enderecos-search', [EnderecoController::class, 'search']);
+    Route::apiResource('estados', EstadoController::class);
+    Route::get('estados-search', [EstadoController::class, 'search']);
 
-Route::apiResource('lotacoes', LotacaoController::class);
-Route::get('lotacoes-search', [LotacaoController::class, 'search']);
+    Route::apiResource('cidades', CidadeController::class);
+    Route::get('cidades-search', [CidadeController::class, 'search']);
 
-Route::apiResource('servidores-efetivos', ServidorEfetivoController::class);
-Route::get('servidores-efetivos-search', [ServidorEfetivoController::class, 'search']);
+    Route::apiResource('enderecos', EnderecoController::class);
+    Route::get('enderecos-search', [EnderecoController::class, 'search']);
 
-Route::apiResource('servidores-temporarios', ServidorTemporarioController::class);
-Route::get('servidores-temporarios-search', [ServidorTemporarioController::class, 'search']);
+    Route::apiResource('lotacoes', LotacaoController::class);
+    Route::get('lotacoes-search', [LotacaoController::class, 'search']);
 
-Route::apiResource('unidades', UnidadeController::class);
-Route::get('unidades-search', [UnidadeController::class, 'search']);
+    Route::apiResource('servidores-efetivos', ServidorEfetivoController::class);
+    Route::get('servidores-efetivos-search', [ServidorEfetivoController::class, 'search']);
 
-Route::apiResource('usuarios', UserController::class);
-Route::get('usuarios-search', [UserController::class, 'search']);
+    Route::apiResource('servidores-temporarios', ServidorTemporarioController::class);
+    Route::get('servidores-temporarios-search', [ServidorTemporarioController::class, 'search']);
 
-Route::apiResource('foto-pessoas', FotoPessoaController::class);
-Route::get('foto-pessoas-search', [FotoPessoaController::class, 'search']);
-Route::post('foto-pessoas', [FotoPessoaController::class, 'upload']);
+    Route::apiResource('unidades', UnidadeController::class);
+    Route::get('unidades-search', [UnidadeController::class, 'search']);
 
+    Route::apiResource('usuarios', UserController::class);
+    Route::get('usuarios-search', [UserController::class, 'search']);
+
+    Route::apiResource('foto-pessoas', FotoPessoaController::class);
+    Route::get('foto-pessoas-search', [FotoPessoaController::class, 'search']);
+    Route::post('foto-pessoas', [FotoPessoaController::class, 'upload']);
+
+});
